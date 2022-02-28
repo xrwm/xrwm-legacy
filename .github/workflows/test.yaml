@@ -13,7 +13,7 @@ jobs:
       run: nix flake metadata
 
     - name: Flake outputs
-      run: nix flake show
+      run: nix flake show --option allow-import-from-derivation true
 
     - name: Check
       run: nix flake check
