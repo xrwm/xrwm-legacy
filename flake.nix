@@ -19,20 +19,53 @@
             inherit system;
           };
 
+          systemLibraries = with pkgs; [
+            xorg.libX11
+            xorg.libXinerama
+            xorg.libXcursor
+            xorg.libXrandr
+            xorg.libXi
+            xorg.libXxf86vm
+            xorg.libXext
+            libGL
+            zlib
+            mesa
+            glslang
+
+            vulkan-headers
+          ];
+
+
+
+          dynamicLibraries = with pkgs; [
+            vulkan-loader
+            libGL
+          ];
+
           packageName = "xrwm";
 
         in
         {
 
-          packages.${packageName} = pkgs.haskellPackages.callCabal2nix packageName self {
-            # Dependency overrides go here
-          };
+          packages.${packageName} = pkgs.haskell.lib.overrideCabal
+            (pkgs.haskellPackages.callCabal2nix packageName self {
+              # Dependency overrides go here
+            })
+            (drv: {
+              /* buildInputs = systemLibraries ++ dynamicLibraries; */
+
+              postFixup = ''
+                patchelf --add-needed libvulkan.so "$out/bin/xrwm"
+                patchelf --add-rpath "${pkgs.lib.strings.makeLibraryPath dynamicLibraries}" "$out/bin/xrwm"
+              '';
+            });
 
           devShells.init = pkgs.mkShell {
-            packages = with pkgs; [
-              cabal-install
-              ghc
-            ];
+            packages = with pkgs;
+              [
+                cabal-install
+                ghc
+              ];
           };
 
           devShells.dev = pkgs.mkShell {
@@ -49,6 +82,8 @@
             shellHook = ''
               [ $STARSHIP_SHELL ] && exec $STARSHIP_SHELL
             '';
+
+            LD_LIBRARY_PATH = pkgs.lib.strings.makeLibraryPath dynamicLibraries;
 
             CURRENT_PROJECT = packageName;
           };

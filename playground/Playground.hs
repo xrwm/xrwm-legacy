@@ -1,4 +1,6 @@
 module Playground where
 
+import qualified Lib
+
 main :: IO ()
-main = putStrLn "Hello playground!"
+main = Lib.main
