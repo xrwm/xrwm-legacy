@@ -31,15 +31,12 @@
             zlib
             mesa
             glslang
-
             vulkan-headers
+            vulkan-validation-layers
           ];
-
-
 
           dynamicLibraries = with pkgs; [
             vulkan-loader
-            libGL
           ];
 
           packageName = "xrwm";
@@ -52,7 +49,7 @@
               # Dependency overrides go here
             })
             (drv: {
-              /* buildInputs = systemLibraries ++ dynamicLibraries; */
+              # buildInputs = systemLibraries ++ dynamicLibraries;
 
               postFixup = ''
                 patchelf --add-needed libvulkan.so "$out/bin/xrwm"
@@ -72,7 +69,8 @@
             buildInputs = with pkgs; [
               haskellPackages.haskell-language-server
               ghcid
-            ];
+              vulkan-tools
+            ] ++ systemLibraries ++ dynamicLibraries;
 
             inputsFrom = [
               self.devShells.${system}.init
@@ -84,6 +82,7 @@
             '';
 
             LD_LIBRARY_PATH = pkgs.lib.strings.makeLibraryPath dynamicLibraries;
+            VK_LAYER_PATH = "${pkgs.vulkan-validation-layers}/share/vulkan/explicit_layer.d";
 
             CURRENT_PROJECT = packageName;
           };

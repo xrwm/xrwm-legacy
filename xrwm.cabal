@@ -17,28 +17,14 @@ category: Graphics
 extra-source-files:
     README.md
 
-common common-all
+executable xrwm
     build-depends:    base ^>=4.14.3.0
                     , vulkan-api >= 1.4.0.0
                     , GLFW-b >= 3.3.0.0
     default-language: Haskell2010
     ghc-options:      -Wall
-
-library
-    import: common-all
-    exposed-modules:  Lib
-    hs-source-dirs:   src
-
-executable xrwm
-    import: common-all
     main-is:          Main.hs
-    other-modules:    Lib
-    hs-source-dirs:   app,src
-
-executable playground
-    import: common-all
-    main-is:          Playground.hs
-    other-modules:    Lib
-    hs-source-dirs:   playground,src
-    ghc-options:       -main-is Playground
+    other-modules:    Lib.Vulkan
+                      Lib.Utils
+    hs-source-dirs:   app
 
