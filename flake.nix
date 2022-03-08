@@ -5,9 +5,11 @@
     nixpkgs.url = "github:NixOS/nixpkgs";
     flake-utils.url = "github:numtide/flake-utils";
     flake-compat = { url = "github:edolstra/flake-compat"; flake = false; };
+
+    nixpkgs-wayland = { url = "github:nix-community/nixpkgs-wayland"; };
   };
 
-  outputs = { self, nixpkgs, flake-utils, ... }:
+  outputs = { self, nixpkgs, flake-utils, ... }@inputs:
     flake-utils.lib.eachSystem
       (with flake-utils.lib.system; [
         x86_64-linux
@@ -33,6 +35,13 @@
             glslang
             vulkan-headers
             vulkan-validation-layers
+
+            libxkbcommon
+            pixman
+            udev
+            wayland
+            wayland-protocols
+            inputs.nixpkgs-wayland.packages.${system}.wlroots
           ];
 
           dynamicLibraries = with pkgs; [
@@ -58,19 +67,23 @@
             });
 
           devShells.init = pkgs.mkShell {
-            packages = with pkgs;
-              [
-                cabal-install
-                ghc
-              ];
+            packages = with pkgs; [
+              cabal-install
+              ghc
+            ];
           };
 
           devShells.dev = pkgs.mkShell {
-            buildInputs = with pkgs; [
-              haskellPackages.haskell-language-server
+            packages = with pkgs; [
+              rnix-lsp
+              haskell-language-server
+              haskellPackages.fourmolu
+
               ghcid
               vulkan-tools
-            ] ++ systemLibraries ++ dynamicLibraries;
+            ];
+
+            buildInputs = systemLibraries ++ dynamicLibraries;
 
             inputsFrom = [
               self.devShells.${system}.init

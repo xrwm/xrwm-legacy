@@ -13,8 +13,14 @@ import Graphics.Vulkan.Core_1_0
 import Lib.Utils
 import Lib.Vulkan (withVulkanInstance)
 
+import Lib.Wayland
+
 main :: IO ()
-main = withGLFWWindow $ \window ->
+main = do
+    initLog 3
+
+mainGLFW :: IO ()
+mainGLFW = withGLFWWindow $ \window ->
     withVulkanInstanceExt $ \vulkanInstance -> do
         dev <- pickPhysicalDevice vulkanInstance
         putStrLn $ "Selected device: " ++ show dev
@@ -89,4 +95,3 @@ pickPhysicalDevice vkInstance = do
 
 isDeviceSuitable :: VkPhysicalDevice -> IO Bool
 isDeviceSuitable _ = pure True
-
