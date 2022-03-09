@@ -58,8 +58,7 @@
               # Dependency overrides go here
             })
             (drv: {
-              # buildInputs = systemLibraries ++ dynamicLibraries;
-
+              extraLibraries = with pkgs; [ udev ];
               postFixup = ''
                 patchelf --add-needed libvulkan.so "$out/bin/xrwm"
                 patchelf --add-rpath "${pkgs.lib.strings.makeLibraryPath dynamicLibraries}" "$out/bin/xrwm"
