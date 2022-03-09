@@ -17,7 +17,11 @@ import Lib.Wayland
 
 main :: IO ()
 main = do
-    initLog 3
+    initLog Info
+    withWlDisplay $ \display -> do
+        withWlrBackend display $ \backend -> do
+            return ()
+
 
 mainGLFW :: IO ()
 mainGLFW = withGLFWWindow $ \window ->
